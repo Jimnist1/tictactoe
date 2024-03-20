@@ -48,26 +48,24 @@ const gameboard = (function () {
     checkWin(countX, countY);
   }
   function checkWin(countX, countY) {
-    console.log(Object.values(countX));
-    console.log(Object.values(countY));
     if (Object.values(countX).find((element) => element == 3))
-      console.log("win");
+      console.log("win horizontal");
     else if (Object.values(countY).find((element) => element == 3))
-      console.log("win");
+      console.log("win vertical");
+      else if (Object.keys(countY).length == 3 && Object.keys(countX).length == 3)
+      console.log("win diagonal");
   }
   countArray([
-    [2, 1],
+    [1, 1],
+    [1, 2],
     [1, 3],
-    [2, 2],
   ]);
 })();
 
 /*
 for diagonal victories has each number 1,2 & 3 twice = win
-
+3,1 2,2 1,3
 computer logic for picking a random slot
 cannot place a tile on existing tile
 reset with each match
 */
-
-
