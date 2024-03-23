@@ -43,8 +43,6 @@ const gameboard = (function () {
         countY[array[i2][1]] += 1;
       } else countY[array[i2][1]] = 1;
     }
-    console.log(countX);
-    console.log(countY);
     checkWin(countX, countY);
   }
   function checkWin(countX, countY) {
@@ -52,20 +50,10 @@ const gameboard = (function () {
       console.log("win horizontal");
     else if (Object.values(countY).find((element) => element == 3))
       console.log("win vertical");
-      else if (Object.keys(countY).length == 3 && Object.keys(countX).length == 3)
+    else if (Object.keys(countY).length == 3 && Object.keys(countX).length == 3)
       console.log("win diagonal");
   }
-  countArray([
-    [1, 1],
-    [1, 2],
-    [1, 3],
-  ]);
+  countArray(player.positions);
+  countArray(computer.positions);
+  return { emptyPositions };
 })();
-
-/*
-for diagonal victories has each number 1,2 & 3 twice = win
-3,1 2,2 1,3
-computer logic for picking a random slot
-cannot place a tile on existing tile
-reset with each match
-*/
