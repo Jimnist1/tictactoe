@@ -2,6 +2,11 @@ const computer = (function () {
   let name = "Computer";
   let token = "";
   let positions = [];
+
+  function randomIndexPos(gameboardLength) {
+    Math.floor(Math.random() * gameboardLength);
+  }
+  console.log();
   return { name, token, positions };
 })();
 const player = (function () {
@@ -11,7 +16,7 @@ const player = (function () {
   return { name, token, positions };
 })();
 const gameboard = (function () {
-  let emptyPositions = [
+  const emptyPositions = [
     [1, 1],
     [1, 2],
     [1, 3],
@@ -23,8 +28,24 @@ const gameboard = (function () {
     [3, 3],
   ];
 
+  //cache DOM
+  let opponent = document.getElementById("opponentChoice");
+  let counter = document.getElementById("counterChoice");
+  let difficulty = document.getElementById("difficultyChoice");
+
+  //Bind Events
+
+  //Establish Positions
+  function moveArray() {}
+
+  function placeCounter(coOrdinate, token) {
+    let gameCounter = document.getElementById(coOrdinate);
+    gameCounter.textContent = token;
+  }
+
+  //Check Results
   function checkDraw(emptyPositions) {
-    if ((emptyPositions.length = 0)) {
+    if (emptyPositions.length == 0) {
       return console.log("draw");
     }
   }
@@ -55,5 +76,6 @@ const gameboard = (function () {
   }
   countArray(player.positions);
   countArray(computer.positions);
+  placeCounter("1,1", "X");
   return { emptyPositions };
 })();
