@@ -3,12 +3,12 @@
 const initialState = {
   computer: {
     name: "Computer",
-    token: "X",
+    token: "O",
     positions: [],
   },
   player: {
     name: "",
-    token: "O",
+    token: "X",
     positions: [],
   },
   gameboard: {
@@ -56,7 +56,6 @@ const gameboard = (function () {
       let chosenArray = strToArr(target.id);
       moveArray(chosenArray, player);
       checkDraw(emptyPositions);
-      console.log(player.positions);
       countArray(player.positions);
       randomMove();
     }
@@ -66,6 +65,7 @@ const gameboard = (function () {
       player.token = symbolSelect.value;
       computer.token = getAlternateCounter(player.token);
       resetGame();
+      if (computer.token == "X") randomMove();
     });
   });
   function getAlternateCounter(playerChoice) {
