@@ -10,19 +10,40 @@
   </head>
   <body>
     <div class="containerAll">
-      <div class="containerTop"></div>
-      <div class="containerMiddle">
-        <div class="gameSquare" id="1, 1"></div>
-        <div class="gameSquare" id="1, 2"></div>
-        <div class="gameSquare" id="1, 3"></div>
-        <div class="gameSquare" id="2, 1"></div>
-        <div class="gameSquare" id="2, 2"></div>
-        <div class="gameSquare" id="2, 3"></div>
-        <div class="gameSquare" id="3, 1"></div>
-        <div class="gameSquare" id="3, 2"></div>
-        <div class="gameSquare" id="3, 3"></div>
+      <div class="containerTop">
+        <div class="title">TicTacToe</div>
       </div>
-      <div class="containerLeft"></div>
+      <div class="containerMiddle">
+        <div class="gameboardContainer">
+          <div class="gameSquare a" id="1, 1"></div>
+          <div class="gameSquare b" id="1, 2"></div>
+          <div class="gameSquare c" id="1, 3"></div>
+          <div class="gameSquare d" id="2, 1"></div>
+          <div class="gameSquare e" id="2, 2"></div>
+          <div class="gameSquare f" id="2, 3"></div>
+          <div class="gameSquare g" id="3, 1"></div>
+          <div class="gameSquare h" id="3, 2"></div>
+          <div class="gameSquare i" id="3, 3"></div>
+        </div>
+      </div>
+      <div class="containerLeft">
+        <label for="opponent">Choose your opponent:</label>
+        <select name="opponent" id="opponentChoice">
+          <option value="Computer">Computer</option>
+          <option value="Player">Player</option>
+        </select>
+        <label for="counter">Choose your counter:</label>
+        <select name="counter" id="counterChoice">
+          <option value="O">O</option>
+          <option value="X">X</option>
+        </select>
+        <label for="difficulty">Select difficulty:</label>
+        <select name="difficulty" id="difficultyChoice">
+          <option value="Easy">Easy</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
       <div class="containerRight"></div>
       <div class="containerBottom"></div>
     </div>

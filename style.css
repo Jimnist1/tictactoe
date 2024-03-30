@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 25px;
+}
+button {
+height: 20px;
+width: fit-content;
+}
+.containerAll {
+  display: grid;
+  grid-template-columns: 1fr 500px 1fr;
+  grid-template-rows: 1fr 500px max-content;
+}
+.containerTop {
+  grid-column: 1/4;
+  grid-row: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 20px;
+}
+.title {
+  font-size: 2em;
+}
+.containerMiddle {
+  grid-row: 2;
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gameboardContainer {
+  height: fit-content;
+  width: fit-content;
+  display: grid;
+  grid-template-rows: (150px) * 3;
+  grid-template-columns: (150px) * 3;
+}
+.gameSquare {
+  height: 150px;
+  width: 150px;
+  border: 5px black solid;
+  gap: 0;
+}
+.a {
+  grid-column: 1;
+  grid-row: 1;
+}
+.b {
+  grid-column: 2;
+  grid-row: 1;
+}
+.c {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.containerBottom {
+  grid-row: 3;
+  grid-column: 1/4;
+}
+.containerLeft {
+  padding-left: 20px;
+  grid-row: 2;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.containerRight {
+  grid-row: 2;
+  grid-column: 3;
+}
