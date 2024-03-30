@@ -34,10 +34,20 @@ const gameboard = (function () {
   let difficulty = document.getElementById("difficultyChoice");
 
   //Bind Events
+  function strToArr (string){
+    return string.split(",").map(Number);
+  }
 
-  //Establish Positions
-  function moveArray() {}
-
+  //Establish Gameboard Positions
+  function findPosition(position) {
+    return JSON.stringify(this) === JSON.stringify(position);
+  }
+  function moveArray(newPosition, currentPlayer) {
+    let currentPosition = emptyPositions.findIndex(findPosition, newPosition);
+    if (currentPosition !== -1) {
+      currentPlayer.positions.push(emptyPositions.splice(currentPosition, 1));
+    }
+  }
   function placeCounter(coOrdinate, token) {
     let gameCounter = document.getElementById(coOrdinate);
     gameCounter.textContent = token;
@@ -76,6 +86,7 @@ const gameboard = (function () {
   }
   countArray(player.positions);
   countArray(computer.positions);
-  placeCounter("1,1", "X");
+  //placeCounter("1,1", "O");
+  //moveArray([1, 2], player);
   return { emptyPositions };
 })();
