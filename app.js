@@ -1,43 +1,91 @@
-const computer = (function () {
-  let name = "Computer";
-  let token = "";
-  let positions = [];
+//initial state
 
+const initialState = {
+  computer: {
+    name: "Computer",
+    token: "X",
+    positions: [],
+  },
+  player: {
+    name: "",
+    token: "O",
+    positions: [],
+  },
+  gameboard: {
+    emptyPositions: [
+      [1, 1],
+      [1, 2],
+      [1, 3],
+      [2, 1],
+      [2, 2],
+      [2, 3],
+      [3, 1],
+      [3, 2],
+      [3, 3],
+    ],
+  },
+};
+let currentState = { ...initialState };
+
+//objects
+const computer = (function () {
+  let { name, token, positions } = currentState.computer;
   function randomIndexPos(gameboardLength) {
-    Math.floor(Math.random() * gameboardLength);
+    return Math.floor(Math.random() * gameboardLength);
   }
-  console.log();
-  return { name, token, positions };
+
+  return { name, token, positions, randomIndexPos };
 })();
 const player = (function () {
-  let name = "";
-  let token = "";
-  let positions = [];
+  let { name, token, positions } = currentState.player;
   return { name, token, positions };
 })();
 const gameboard = (function () {
-  const emptyPositions = [
-    [1, 1],
-    [1, 2],
-    [1, 3],
-    [2, 1],
-    [2, 2],
-    [2, 3],
-    [3, 1],
-    [3, 2],
-    [3, 3],
-  ];
-
+  let { emptyPositions } = currentState.gameboard;
+  resetGame();
   //cache DOM
   let opponent = document.getElementById("opponentChoice");
-  let counter = document.getElementById("counterChoice");
   let difficulty = document.getElementById("difficultyChoice");
+  const symbolSelect = document.getElementById("counterChoice");
 
   //Bind Events
-  function strToArr (string){
+  document.addEventListener("click", function (buttonPressed) {
+    const target = buttonPressed.target;
+    if (target.id == "reset") resetGame();
+    else if (target.classList.contains("gameSquare")) {
+      let chosenArray = strToArr(target.id);
+      moveArray(chosenArray, player);
+      checkDraw(emptyPositions);
+      console.log(player.positions);
+      countArray(player.positions);
+      randomMove();
+    }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    symbolSelect.addEventListener("change", function () {
+      player.token = symbolSelect.value;
+      computer.token = getAlternateCounter(player.token);
+      resetGame();
+    });
+  });
+  function getAlternateCounter(playerChoice) {
+    if (playerChoice.toUpperCase() === "X") {
+      return "O";
+    } else if (playerChoice.toUpperCase() === "O") {
+      return "X";
+    } else {
+      return null;
+    }
+  }
+  function strToArr(string) {
     return string.split(",").map(Number);
   }
-
+  //Computer events
+  function randomMove() {
+    randomIndex = computer.randomIndexPos(emptyPositions.length);
+    computer.positions.push(emptyPositions.splice(randomIndex, 1));
+    placeCounter(computer.positions, computer.token);
+  }
   //Establish Gameboard Positions
   function findPosition(position) {
     return JSON.stringify(this) === JSON.stringify(position);
@@ -47,20 +95,25 @@ const gameboard = (function () {
     if (currentPosition !== -1) {
       currentPlayer.positions.push(emptyPositions.splice(currentPosition, 1));
     }
+    placeCounter(currentPlayer.positions, currentPlayer.token);
   }
-  function placeCounter(coOrdinate, token) {
-    let gameCounter = document.getElementById(coOrdinate);
-    gameCounter.textContent = token;
+  function placeCounter(positions, token) {
+    positions.forEach((positionArray) => {
+      positionArray.forEach((position) => {
+        let positionID = position.join(",");
+        let gameCounter = document.getElementById(positionID);
+        if (gameCounter) {
+          gameCounter.textContent = token;
+        }
+      });
+    });
   }
-
   //Check Results
   function checkDraw(emptyPositions) {
     if (emptyPositions.length == 0) {
       return console.log("draw");
     }
   }
-  checkDraw(emptyPositions);
-
   function countArray(array) {
     const countX = {};
     const countY = {};
@@ -86,7 +139,21 @@ const gameboard = (function () {
   }
   countArray(player.positions);
   countArray(computer.positions);
-  //placeCounter("1,1", "O");
-  //moveArray([1, 2], player);
-  return { emptyPositions };
+
+  //Reset Game
+  function resetGame() {
+    player.positions = [...initialState.player.positions];
+    computer.positions = [...initialState.computer.positions];
+    currentState.gameboard.emptyPositions = [
+      ...initialState.gameboard.emptyPositions,
+    ];
+    emptyPositions = [...currentState.gameboard.emptyPositions];
+    emptyPositions.forEach((position) => {
+      let positionID = position.join(",");
+      let gameCounter = document.getElementById(positionID);
+      if (gameCounter) {
+        gameCounter.textContent = ""; // Set text content to empty
+      }
+    });
+  }
 })();
