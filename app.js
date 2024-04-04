@@ -7,7 +7,7 @@ const initialState = {
     positions: [],
   },
   player: {
-    name: "",
+    name: "Player",
     token: "X",
     positions: [],
   },
@@ -27,7 +27,7 @@ const initialState = {
 };
 let currentState = { ...initialState };
 
-//objects
+//Objects
 const computer = (function () {
   let { name, token, positions } = currentState.computer;
   function randomIndexPos(gameboardLength) {
@@ -36,10 +36,12 @@ const computer = (function () {
 
   return { name, token, positions, randomIndexPos };
 })();
+
 const player = (function () {
   let { name, token, positions } = currentState.player;
   return { name, token, positions };
 })();
+
 const gameboard = (function () {
   let { emptyPositions } = currentState.gameboard;
   resetGame();
@@ -56,7 +58,8 @@ const gameboard = (function () {
       let chosenArray = strToArr(target.id);
       moveArray(chosenArray, player);
       checkDraw(emptyPositions);
-      countArray(player.positions);
+      countArray(player.positions, player.name);
+      countArray(computer.positions, computer.name);
       randomMove();
     }
   });
@@ -65,7 +68,6 @@ const gameboard = (function () {
       player.token = symbolSelect.value;
       computer.token = getAlternateCounter(player.token);
       resetGame();
-      if (computer.token == "X") randomMove();
     });
   });
   function getAlternateCounter(playerChoice) {
@@ -80,7 +82,7 @@ const gameboard = (function () {
   function strToArr(string) {
     return string.split(",").map(Number);
   }
-  //Computer events
+  //Automatic events
   function randomMove() {
     randomIndex = computer.randomIndexPos(emptyPositions.length);
     computer.positions.push(emptyPositions.splice(randomIndex, 1));
@@ -114,7 +116,7 @@ const gameboard = (function () {
       return console.log("draw");
     }
   }
-  function countArray(array) {
+  function countArray(array, player) {
     const countX = {};
     const countY = {};
     for (let i = 0; i < array.length; i++) {
@@ -127,18 +129,16 @@ const gameboard = (function () {
         countY[array[i2][1]] += 1;
       } else countY[array[i2][1]] = 1;
     }
-    checkWin(countX, countY);
+    checkWin(countX, countY, player);
   }
-  function checkWin(countX, countY) {
+  function checkWin(countX, countY, player) {
     if (Object.values(countX).find((element) => element == 3))
-      console.log("win horizontal");
+      console.log(player + " Horizontal win");
     else if (Object.values(countY).find((element) => element == 3))
-      console.log("win vertical");
+      console.log(player + " win vertical");
     else if (Object.keys(countY).length == 3 && Object.keys(countX).length == 3)
-      console.log("win diagonal");
+      console.log(player + " win diagonal");
   }
-  countArray(player.positions);
-  countArray(computer.positions);
 
   //Reset Game
   function resetGame() {
@@ -155,5 +155,14 @@ const gameboard = (function () {
         gameCounter.textContent = ""; // Set text content to empty
       }
     });
+    if (computer.token == "X") randomMove();
+    console.log("player " + player.token);
+    console.log("computer " + computer.token);
   }
+  return { emptyPositions, symbolSelect, getAlternateCounter };
 })();
+
+window.onload = function () {
+  player.token = gameboard.symbolSelect.value;
+  computer.token = gameboard.getAlternateCounter(player.token);
+};
