@@ -150,9 +150,6 @@ const gameboard = (function () {
       return null;
     }
   }
-  function strToArr(string) {
-    return string.split(",").map(Number);
-  }
   //Automatic events
   function toggleProperty(obj, property) {
     obj[property] = !obj[property]; // Invert the boolean value of the property
@@ -169,6 +166,9 @@ const gameboard = (function () {
     }
   }
   //Establish Gameboard Positions
+  function strToArr(string) {
+    return string.split(",").map(Number);
+  }
   function findPosition(position) {
     return JSON.stringify(this) === JSON.stringify(position);
   }
@@ -227,17 +227,11 @@ const gameboard = (function () {
     else if (Object.values(countY).find((element) => element == 3))
       console.log(player.name + " win vertical");
     else if (
-      findConditionalPositions([1, 1], player) == true &&
-      findConditionalPositions([2, 2], player) == true &&
-      findConditionalPositions([3, 3], player) == true
+      Object.keys(countY).length == 3 &&
+      Object.keys(countX).length == 3 &&
+      findConditionalPositions([2, 2], player) == true
     )
-      console.log(player.name + " win standard diagonal");
-    else if (
-      findConditionalPositions([1, 3], player) == true &&
-      findConditionalPositions([2, 2], player) == true &&
-      findConditionalPositions([3, 1], player) == true
-    )
-      console.log(player.name + " win reverse diagonal");
+      console.log(player.name + " win diagonal");
   }
 
   //Reset Game
