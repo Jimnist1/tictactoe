@@ -150,21 +150,31 @@ const gameboard = (function () {
     }
   }
   function playerVsComputerEvent(position) {
-    moveArray(position, player);
-    countArray(player);
-    checkDraw(emptyPositions);
-    randomMove();
-    countArray(computer);
-    checkDraw(emptyPositions);
+    if (checkForCounter(position) == false) {
+      moveArray(position, player);
+      countArray(player);
+      checkDraw(emptyPositions);
+      randomMove();
+      countArray(computer);
+      checkDraw(emptyPositions);
+    }
   }
   function playerVsPlayerEvent(position, activePlayer) {
-    moveArray(position, activePlayer);
-    countArray(activePlayer);
-    checkDraw(emptyPositions);
-    toggleProperty(player, "turn");
-    toggleProperty(player2, "turn");
+    if (checkForCounter(position) == false) {
+      moveArray(position, activePlayer);
+      countArray(activePlayer);
+      checkDraw(emptyPositions);
+      toggleProperty(player, "turn");
+      toggleProperty(player2, "turn");
+    }
   }
-  //Establish Gameboard Positions
+  //Establish/Check Gameboard Positions
+  function checkForCounter(position) {
+    let positionID = position[0] + "," + position[1];
+    let gameCounter = document.getElementById(positionID);
+    if (gameCounter.textContent !== "") return true;
+    else return false;
+  }
   function strToArr(string) {
     return string.split(",").map(Number);
   }
