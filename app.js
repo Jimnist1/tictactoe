@@ -95,30 +95,15 @@ const gameboard = (function () {
     else if (target.classList.contains("gameSquare")) {
       let chosenArray = strToArr(target.id);
       if (computer.active == true) {
-        moveArray(chosenArray, player);
-        countArray(player);
-        checkDraw(emptyPositions);
-        randomMove();
-        countArray(computer);
+        playerVsComputerEvent(chosenArray);
       } else if (computer.active == false) {
         player2.token = getAlternateCounter(player.token);
         if (player.turn == true) {
-          moveArray(chosenArray, player);
-          countArray(player);
-          checkDraw(emptyPositions);
-          toggleProperty(player, "turn");
-          toggleProperty(player2, "turn");
+          playerVsPlayerEvent(chosenArray, player);
         } else if (player2.turn == true) {
-          moveArray(chosenArray, player2);
-          countArray(player2);
-          checkDraw(emptyPositions);
-          toggleProperty(player, "turn");
-          toggleProperty(player2, "turn");
+          playerVsPlayerEvent(chosenArray, player2);
         }
       }
-      //console.log("player poisitions " + player.positions);
-      //console.log("computer poisitions " + computer.positions);
-      //console.log("empty positions " + emptyPositions);
     }
   });
   document.addEventListener("DOMContentLoaded", function () {
@@ -136,8 +121,6 @@ const gameboard = (function () {
         computer.active = false;
         player2.active = true;
       }
-      console.log(computer.active);
-      console.log(player2.active);
       resetGame();
     });
   });
@@ -160,10 +143,26 @@ const gameboard = (function () {
       if (randomIndex !== -1) {
         const removedPosition = emptyPositions.splice(randomIndex, 1)[0];
         computer.positions.push(removedPosition);
-
-        placeCounter(computer.positions, computer.token);
+        setTimeout(() => {
+          placeCounter(computer.positions, computer.token);
+        }, 400);
       }
     }
+  }
+  function playerVsComputerEvent(position) {
+    moveArray(position, player);
+    countArray(player);
+    checkDraw(emptyPositions);
+    randomMove();
+    countArray(computer);
+    checkDraw(emptyPositions);
+  }
+  function playerVsPlayerEvent(position, activePlayer) {
+    moveArray(position, activePlayer);
+    countArray(activePlayer);
+    checkDraw(emptyPositions);
+    toggleProperty(player, "turn");
+    toggleProperty(player2, "turn");
   }
   //Establish Gameboard Positions
   function strToArr(string) {
@@ -178,7 +177,9 @@ const gameboard = (function () {
       const removedPosition = emptyPositions.splice(currentPosition, 1)[0];
       currentPlayer.positions.push(removedPosition);
     }
-    placeCounter(currentPlayer.positions, currentPlayer.token);
+    setTimeout(() => {
+      placeCounter(currentPlayer.positions, currentPlayer.token);
+    }, 200);
   }
 
   function placeCounter(positions, token) {
