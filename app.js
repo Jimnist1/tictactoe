@@ -15,7 +15,7 @@ const initialState = {
     turn: false,
   },
   player: {
-    name: "Player",
+    name: "Player 1",
     token: "X",
     positions: [],
     turn: true,
@@ -32,6 +32,7 @@ const initialState = {
       [3, 2],
       [3, 3],
     ],
+    gameComplete: false,
   },
 };
 let currentState = { ...initialState };
@@ -81,18 +82,24 @@ const player2 = (function () {
 })();
 */
 const gameboard = (function () {
-  let { emptyPositions } = currentState.gameboard;
+  let { emptyPositions, gameComplete } = currentState.gameboard;
   resetGame();
   //cache DOM
   let opponent = document.getElementById("opponentChoice");
   let difficulty = document.getElementById("difficultyChoice");
   const symbolSelect = document.getElementById("counterChoice");
+  const dialog = document.getElementById("dialog");
+  const outcome = document.getElementById("endGameWinner");
+  const outcomeMessage = document.getElementById("endGameMessage");
 
   //Bind Events
   document.addEventListener("click", function (buttonPressed) {
     const target = buttonPressed.target;
     if (target.id == "reset") resetGame();
-    else if (target.classList.contains("gameSquare")) {
+    else if (target.id == "closeReset") {
+      dialog.close();
+      resetGame();
+    } else if (target.classList.contains("gameSquare")) {
       let chosenArray = strToArr(target.id);
       if (computer.active == true) {
         playerVsComputerEvent(chosenArray);
@@ -153,19 +160,23 @@ const gameboard = (function () {
     if (checkForCounter(position) == false) {
       moveArray(position, player);
       countArray(player);
-      checkDraw(emptyPositions);
-      randomMove();
-      countArray(computer);
-      checkDraw(emptyPositions);
+      if (gameComplete == false) {
+        checkDraw(emptyPositions);
+        randomMove();
+        countArray(computer);
+        checkDraw(emptyPositions);
+      }
     }
   }
   function playerVsPlayerEvent(position, activePlayer) {
     if (checkForCounter(position) == false) {
       moveArray(position, activePlayer);
       countArray(activePlayer);
-      checkDraw(emptyPositions);
-      toggleProperty(player, "turn");
-      toggleProperty(player2, "turn");
+      if (gameComplete == false) {
+        checkDraw(emptyPositions);
+        toggleProperty(player, "turn");
+        toggleProperty(player2, "turn");
+      }
     }
   }
   //Establish/Check Gameboard Positions
@@ -204,7 +215,10 @@ const gameboard = (function () {
   //Check Results
   function checkDraw(emptyPositions) {
     if (emptyPositions.length == 0) {
-      return console.log("draw");
+      outcome.textContent = "You Draw.....";
+      outcomeMessage.textContent = "I guess no-one gets to smile here";
+      dialog.showModal();
+      gameComplete = true;
     }
   }
   function countArray(player) {
@@ -233,16 +247,68 @@ const gameboard = (function () {
       ) !== undefined);
   }
   function checkWin(countX, countY, player) {
-    if (Object.values(countX).find((element) => element == 3))
-      console.log(player.name + " Horizontal win");
-    else if (Object.values(countY).find((element) => element == 3))
-      console.log(player.name + " win vertical");
-    else if (
-      Object.keys(countY).length == 3 &&
-      Object.keys(countX).length == 3 &&
-      findConditionalPositions([2, 2], player) == true
-    )
-      console.log(player.name + " win diagonal");
+    if (Object.values(countX).find((element) => element == 3)) {
+      displayOutcome(player, "horizontal");
+      gameComplete = true;
+    } else if (Object.values(countY).find((element) => element == 3)) {
+      displayOutcome(player, "vertical");
+      gameComplete = true;
+    } else if (
+      (findConditionalPositions([1, 1], player) == true &&
+        findConditionalPositions([2, 2], player) == true &&
+        findConditionalPositions([3, 3], player) == true) ||
+      (findConditionalPositions([1, 3], player) == true &&
+        findConditionalPositions([2, 2], player) == true &&
+        findConditionalPositions([3, 1], player) == true)
+    ) {
+      displayOutcome(player, "diagonal");
+      gameComplete = true;
+    }
+  }
+  function displayOutcome(object, direction) {
+    setTimeout(() => {
+      if (computer.active == true) {
+        switch (object) {
+          case player:
+            outcome.textContent = "You Win!!!";
+            outcomeMessage.textContent =
+              "You have beaten the machine! With a " + direction + " line";
+            dialog.showModal();
+            break;
+          case computer:
+            outcome.textContent = "You Lose!!";
+            outcomeMessage.textContent =
+              "You lost to the Computer by " +
+              direction +
+              " line, and frankly it has the logic of a toaster O.o";
+            dialog.showModal();
+            break;
+        }
+      } else if (player2.active == true) {
+        switch (object) {
+          case player:
+            outcome.textContent = "You Win!!! " + player.name;
+            outcomeMessage.textContent =
+              "You have beaten " +
+              player2.name +
+              "with a " +
+              direction +
+              " line";
+            dialog.showModal();
+            break;
+          case player2:
+            outcome.textContent = "You Win!!! " + player.name;
+            outcomeMessage.textContent =
+              "You have beaten " +
+              player2.name +
+              "with a " +
+              direction +
+              " line";
+            dialog.showModal();
+            break;
+        }
+      }
+    }, 500);
   }
 
   //Reset Game
@@ -252,6 +318,7 @@ const gameboard = (function () {
     player2.positions = [...initialState.player2.positions];
     player.turn = initialState.player.turn;
     player2.turn = initialState.player2.turn;
+    gameComplete = false;
     currentState.gameboard.emptyPositions = [
       ...initialState.gameboard.emptyPositions,
     ];

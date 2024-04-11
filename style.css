@@ -5,10 +5,34 @@ body {
 }
 button {
   font-size: 1em;
+  font-weight: bold;
+  color: white;
+  background-color: red;
+  border-radius: 10px;
+  padding: 10px;
 }
 select {
   font-size: 1em;
   padding: 5px;
+  color: white;
+  background-color: green;
+  border-radius: 10px;
+  padding: 10px;
+}
+dialog {
+  animation: fade-out 1s ease-out;
+  width: 600px;
+  height: 300px;
+  border-radius: 15px;
+}
+dialog[open] {
+  animation: fade-in 1s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-fade-in 1s ease-out forwards;
 }
 .containerAll {
   display: grid;
@@ -82,3 +106,46 @@ select {
   grid-row: 2;
   grid-column: 3;
 }
+#closeReset {
+  justify-self: flex-end;
+}
+/* Animation keyframes */
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+    display: none;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+    display: block;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: scaleY(1);
+    display: block;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
+    display: none;
+  }
+}
+
+@keyframes backdrop-fade-in {
+  0% {
+    background-color: rgb(0 0 0 / 0%);
+  }
+
+  100% {
+    background-color: rgb(0 0 0);
+  }
+}
+
