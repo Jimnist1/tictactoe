@@ -291,7 +291,7 @@ const gameboard = (function () {
             outcomeMessage.textContent =
               "You have beaten " +
               player2.name +
-              "with a " +
+              " with a " +
               direction +
               " line";
             dialog.showModal();
@@ -301,7 +301,7 @@ const gameboard = (function () {
             outcomeMessage.textContent =
               "You have beaten " +
               player2.name +
-              "with a " +
+              " with a " +
               direction +
               " line";
             dialog.showModal();

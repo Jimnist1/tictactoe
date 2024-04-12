@@ -24,6 +24,8 @@ dialog {
   width: 600px;
   height: 300px;
   border-radius: 15px;
+  display: flex;
+  flex-direction: column;
 }
 dialog[open] {
   animation: fade-in 1s ease-out;
@@ -145,7 +147,6 @@ dialog[open]::backdrop {
   }
 
   100% {
-    background-color: rgb(0 0 0);
+    background-color: rgb(0 0 0/30%);
   }
 }
-
