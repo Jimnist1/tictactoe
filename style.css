@@ -24,11 +24,11 @@ dialog {
   width: 600px;
   height: 300px;
   border-radius: 15px;
+  display: flex;
+  flex-direction: column;
 }
 dialog[open] {
   animation: fade-in 1s ease-out;
-  display: flex;
-  flex-direction: column;
 }
 
 dialog[open]::backdrop {
