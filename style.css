@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-size: 25px;
+  background-color: white;
 }
 button {
   font-size: 1em;
@@ -20,10 +21,13 @@ select {
   padding: 10px;
 }
 dialog {
-  animation: fade-out 1s ease-out;
+  bottom: 300px;
   width: 600px;
   height: 300px;
   border-radius: 15px;
+  animation: fade-out 1s ease-out;
+}
+#dialogCont {
   display: flex;
   flex-direction: column;
 }
@@ -62,6 +66,28 @@ dialog[open]::backdrop {
   display: grid;
   grid-template-rows: (150px) * 3;
   grid-template-columns: (150px) * 3;
+  position: relative; /* Ensure proper positioning of child elements */
+}
+.winLine {
+  width: 250px;
+  height: 10px;
+  background: transparent;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.winLine::before {
+  content: "";
+  position: absolute;
+  border-radius: 10px;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: black;
+  animation: animate 4s linear forwards;
 }
 .gameSquare {
   height: 150px;
@@ -69,6 +95,7 @@ dialog[open]::backdrop {
   border: 5px black solid;
   font-size: 5em;
   text-align: center;
+  position: relative; /* Ensure proper positioning of child elements */
 }
 .a {
   grid-column: 1;
@@ -109,7 +136,7 @@ dialog[open]::backdrop {
 #closeReset {
   justify-self: flex-end;
 }
-/* Animation keyframes */
+/* Animation keyframes dialog*/
 
 @keyframes fade-in {
   0% {
@@ -142,5 +169,15 @@ dialog[open]::backdrop {
 
   100% {
     background-color: rgb(0 0 0 / 30%);
+  }
+}
+/* Animation keyframes Line*/
+
+@keyframes animate {
+  0% {
+    width: 0; /* Start off the screen */
+  }
+  100% {
+    width: 250px; /* Move off the screen to the right */
   }
 }

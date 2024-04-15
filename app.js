@@ -83,7 +83,6 @@ const player2 = (function () {
 */
 const gameboard = (function () {
   let { emptyPositions, gameComplete } = currentState.gameboard;
-  resetGame();
   //cache DOM
   let opponent = document.getElementById("opponentChoice");
   let difficulty = document.getElementById("difficultyChoice");
@@ -212,6 +211,19 @@ const gameboard = (function () {
       }
     });
   }
+  // Function to start the win line animation
+  const startWinLineAnimation = function () {
+    const winLine = document.querySelector(".winLine");
+    const winLineBefore = winLine.querySelector("::before");
+    winLineBefore.style.animation = "animate 4s linear forwards"; // Add animation properties
+  };
+
+  // Function to stop the win line animation
+  const stopWinLineAnimation = function () {
+    const winLine = document.querySelector(".winLine");
+    const winLineBefore = winLine.querySelector("::before");
+    winLineBefore.style.animation = "none"; // Remove animation properties
+  };
   //Check Results
   function checkDraw(emptyPositions) {
     if (emptyPositions.length == 0) {
@@ -332,7 +344,12 @@ const gameboard = (function () {
     });
     if (computer.token == "X" && computer.active == true) randomMove();
   }
-  return { emptyPositions, symbolSelect, getAlternateCounter };
+  return {
+    emptyPositions,
+    symbolSelect,
+    getAlternateCounter,
+    stopWinLineAnimation,
+  };
 })();
 
 window.onload = function () {
