@@ -27,6 +27,9 @@ dialog {
   border-radius: 15px;
   animation: fade-out 1s ease-out;
 }
+.disabled {
+  pointer-events: none;
+}
 #dialogCont {
   display: flex;
   flex-direction: column;
@@ -69,13 +72,12 @@ dialog[open]::backdrop {
   position: relative; /* Ensure proper positioning of child elements */
 }
 .winLine {
-  width: 250px;
-  height: 10px;
+  width: 360px;
+  height: 20px;
   background: transparent;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .winLine::before {
@@ -87,7 +89,10 @@ dialog[open]::backdrop {
   width: 0;
   height: 100%;
   background: black;
-  animation: animate 4s linear forwards;
+  animation: none;
+}
+.winLine.animate::before {
+  animation: animate 2s linear forwards; /* Apply animation when the animate class is present */
 }
 .gameSquare {
   height: 150px;
@@ -175,9 +180,9 @@ dialog[open]::backdrop {
 
 @keyframes animate {
   0% {
-    width: 0; /* Start off the screen */
+    width: 0;
   }
   100% {
-    width: 250px; /* Move off the screen to the right */
+    width: 100%;
   }
 }

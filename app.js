@@ -40,22 +40,93 @@ let currentState = { ...initialState };
 //Objects
 const computer = (function () {
   let { name, token, positions, active } = currentState.computer;
-  function randomIndexPos(gameboardLength) {
-    return Math.floor(Math.random() * gameboardLength);
+  let difficulty = document.getElementById("difficultyChoice");
+  //AI Minmax Logic
+  function minimax(board, depth, maximizingPlayer) {
+    let result = evaluate(board);
+    if (result !== null) {
+      return result;
+    }
+
+    if (maximizingPlayer) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+          if (board[i][j] === "") {
+            board[i][j] = "X";
+            let score = minimax(board, depth + 1, false);
+            board[i][j] = "";
+            bestScore = Math.max(bestScore, score);
+          }
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+          if (board[i][j] === "") {
+            board[i][j] = "O";
+            let score = minimax(board, depth + 1, true);
+            board[i][j] = "";
+            bestScore = Math.min(bestScore, score);
+          }
+        }
+      }
+      return bestScore;
+    }
   }
+  function findBestMove(board) {
+    let bestScore = -Infinity;
+    let bestMove = [row, column];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j] === "") {
+          board[i][j] = "X";
+          const score = minimax(board, 0, false);
+          board[i][j] = "";
+          if (score > bestScore) {
+            bestScore = score;
+            row = i;
+            column = j;
+          }
+        }
+      }
+    }
+    return bestMove;
+  }
+  function evaluate(board) {
+    const winningCombinations = [
+      [board[0][0], board[0][1], board[0][2]],
+      [board[1][0], board[1][1], board[1][2]],
+      [board[2][0], board[2][1], board[2][2]],
+      [board[0][0], board[1][0], board[2][0]],
+      [board[0][1], board[1][1], board[2][1]],
+      [board[0][2], board[1][2], board[2][2]],
+      [board[0][0], board[1][1], board[2][2]],
+      [board[0][2], board[1][1], board[2][0]],
+    ];
 
-  return { name, token, positions, active, randomIndexPos };
-})();
-
-const player = (function () {
-  let { name, token, positions, turn } = currentState.player;
-  return { name, token, positions, turn };
-})();
-const player2 = (function () {
-  let { name, token, positions, active, turn } = currentState.player2;
-  return { name, token, positions, active, turn };
-})();
-/*const difficulty = (function () {
+    for (const combination of winningCombinations) {
+      if (combination.every((cell) => cell === "X")) {
+        return 10;
+      } else if (combination.every((cell) => cell === "O")) {
+        return -10;
+      }
+    }
+    if (board.every((row) => row.every((cell) => cell !== ""))) {
+      return 0;
+    }
+    return 5;
+  }
+  board = [
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
+  ];
+  const bestScore = minimax(board, 0, true);
+  console.log("Best score:", bestScore);
+  /*const difficulty = (function () {
   EASY: 'easy',
   MODERATE: 'moderate',
   HARD: 'hard';
@@ -81,15 +152,31 @@ const player2 = (function () {
     }
 })();
 */
+  function randomIndexPos(gameboardLength) {
+    return Math.floor(Math.random() * gameboardLength);
+  }
+
+  return { name, token, positions, active, randomIndexPos };
+})();
+
+const player = (function () {
+  let { name, token, positions, turn } = currentState.player;
+  return { name, token, positions, turn };
+})();
+const player2 = (function () {
+  let { name, token, positions, active, turn } = currentState.player2;
+  return { name, token, positions, active, turn };
+})();
 const gameboard = (function () {
   let { emptyPositions, gameComplete } = currentState.gameboard;
   //cache DOM
   let opponent = document.getElementById("opponentChoice");
-  let difficulty = document.getElementById("difficultyChoice");
   const symbolSelect = document.getElementById("counterChoice");
   const dialog = document.getElementById("dialog");
   const outcome = document.getElementById("endGameWinner");
   const outcomeMessage = document.getElementById("endGameMessage");
+  const winLine = document.querySelector(".winLine");
+  const gameboardContainer = document.querySelector(".gameboardContainer");
 
   //Bind Events
   document.addEventListener("click", function (buttonPressed) {
@@ -130,6 +217,7 @@ const gameboard = (function () {
       resetGame();
     });
   });
+  //Automatic events
   function getAlternateCounter(playerChoice) {
     if (playerChoice.toUpperCase() === "X") {
       return "O";
@@ -139,7 +227,6 @@ const gameboard = (function () {
       return null;
     }
   }
-  //Automatic events
   function toggleProperty(obj, property) {
     obj[property] = !obj[property]; // Invert the boolean value of the property
   }
@@ -178,6 +265,26 @@ const gameboard = (function () {
       }
     }
   }
+  function disablePointerEvents() {
+    const elementsToDisable = document.querySelectorAll(".gameSquare");
+    elementsToDisable.forEach((element) => {
+      element.classList.add("disabled");
+    });
+    const containerToDisable = document.querySelectorAll(".containerLeft");
+    containerToDisable.forEach((element) => {
+      element.classList.add("disabled");
+    });
+  }
+  function enablePointerEvents() {
+    const elementsToEnable = document.querySelectorAll(".gameSquare");
+    elementsToEnable.forEach((element) => {
+      element.classList.remove("disabled");
+    });
+    const containerToDisable = document.querySelectorAll(".containerLeft");
+    containerToDisable.forEach((element) => {
+      element.classList.remove("disabled");
+    });
+  }
   //Establish/Check Gameboard Positions
   function checkForCounter(position) {
     let positionID = position[0] + "," + position[1];
@@ -211,18 +318,45 @@ const gameboard = (function () {
       }
     });
   }
-  // Function to start the win line animation
-  const startWinLineAnimation = function () {
-    const winLine = document.querySelector(".winLine");
-    const winLineBefore = winLine.querySelector("::before");
-    winLineBefore.style.animation = "animate 4s linear forwards"; // Add animation properties
+  const adjustWinLinePosition = function (
+    winSquareRow,
+    winSquareCol,
+    leftAdjust,
+    topAdjust
+  ) {
+    const gameboardContainerRect = gameboardContainer.getBoundingClientRect();
+    const gameSquare = document.getElementById(
+      `${winSquareRow},${winSquareCol}`
+    );
+    const gameSquareRect = gameSquare.getBoundingClientRect();
+    const relativeLeft = gameSquareRect.left - gameboardContainerRect.left;
+    winLine.style.left = relativeLeft + leftAdjust + "px";
+    const squareHeight = gameSquare.offsetHeight;
+    const winLineHeight = winLine.offsetHeight;
+    const relativeTop =
+      gameSquareRect.top -
+      gameboardContainerRect.top +
+      (squareHeight - winLineHeight) / 2;
+    winLine.style.top = relativeTop + topAdjust + "px";
   };
-
-  // Function to stop the win line animation
+  // Animation Display
+  const startWinLineAnimation = function (direction) {
+    if (direction == "horizontal") {
+      winLine.classList.add("animate");
+    } else if (direction == "vertical") {
+      winLine.style.transform = "rotate(90deg)";
+      winLine.classList.add("animate");
+    } else if (direction == "diagonal") {
+      winLine.style.transform = "rotate(45deg)";
+      winLine.classList.add("animate");
+    } else if (direction == "reverseDiagonal") {
+      winLine.style.transform = "rotate(135deg)";
+      winLine.classList.add("animate");
+    }
+  };
   const stopWinLineAnimation = function () {
-    const winLine = document.querySelector(".winLine");
-    const winLineBefore = winLine.querySelector("::before");
-    winLineBefore.style.animation = "none"; // Remove animation properties
+    winLine.classList.remove("animate");
+    winLine.style.transform = "";
   };
   //Check Results
   function checkDraw(emptyPositions) {
@@ -260,21 +394,38 @@ const gameboard = (function () {
   }
   function checkWin(countX, countY, player) {
     if (Object.values(countX).find((element) => element == 3)) {
+      const objectKey = Object.keys(countX).find((key) => countX[key] === 3);
+      adjustWinLinePosition(objectKey, 1, 60, 0);
+      disablePointerEvents();
+      startWinLineAnimation("horizontal");
       displayOutcome(player, "horizontal");
       gameComplete = true;
     } else if (Object.values(countY).find((element) => element == 3)) {
+      const objectKey = Object.keys(countY).find((key) => countY[key] === 3);
+      adjustWinLinePosition(1, objectKey, -100, 150);
+      disablePointerEvents();
+      startWinLineAnimation("vertical");
       displayOutcome(player, "vertical");
       gameComplete = true;
     } else if (
-      (findConditionalPositions([1, 1], player) == true &&
-        findConditionalPositions([2, 2], player) == true &&
-        findConditionalPositions([3, 3], player) == true) ||
-      (findConditionalPositions([1, 3], player) == true &&
-        findConditionalPositions([2, 2], player) == true &&
-        findConditionalPositions([3, 1], player) == true)
+      findConditionalPositions([1, 1], player) == true &&
+      findConditionalPositions([2, 2], player) == true &&
+      findConditionalPositions([3, 3], player) == true
     ) {
+      disablePointerEvents();
+      adjustWinLinePosition(2, 1, 60, 0);
+      startWinLineAnimation("diagonal");
       displayOutcome(player, "diagonal");
       gameComplete = true;
+    } else if (
+      findConditionalPositions([1, 3], player) == true &&
+      findConditionalPositions([2, 2], player) == true &&
+      findConditionalPositions([3, 1], player) == true
+    ) {
+      disablePointerEvents();
+      adjustWinLinePosition(2, 1, 60, 0);
+      startWinLineAnimation("reverseDiagonal");
+      displayOutcome(player, "diagonal");
     }
   }
   function displayOutcome(object, direction) {
@@ -309,10 +460,10 @@ const gameboard = (function () {
             dialog.showModal();
             break;
           case player2:
-            outcome.textContent = "You Win!!! " + player.name;
+            outcome.textContent = "You Win!!! " + player2.name;
             outcomeMessage.textContent =
               "You have beaten " +
-              player2.name +
+              player.name +
               " with a " +
               direction +
               " line";
@@ -320,8 +471,10 @@ const gameboard = (function () {
             break;
         }
       }
-    }, 500);
+    }, 3000);
   }
+  //Clear game to initial spec
+  resetGame();
 
   //Reset Game
   function resetGame() {
@@ -331,6 +484,8 @@ const gameboard = (function () {
     player.turn = initialState.player.turn;
     player2.turn = initialState.player2.turn;
     gameComplete = false;
+    stopWinLineAnimation();
+    enablePointerEvents();
     currentState.gameboard.emptyPositions = [
       ...initialState.gameboard.emptyPositions,
     ];
@@ -348,7 +503,6 @@ const gameboard = (function () {
     emptyPositions,
     symbolSelect,
     getAlternateCounter,
-    stopWinLineAnimation,
   };
 })();
 
