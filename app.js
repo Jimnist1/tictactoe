@@ -28,44 +28,49 @@ const initialState = {
   },
   gameboard: {
     emptyPositions: [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+      [1, 0],
       [1, 1],
       [1, 2],
-      [1, 3],
+      [2, 0],
       [2, 1],
       [2, 2],
-      [2, 3],
-      [3, 1],
-      [3, 2],
-      [3, 3],
     ],
     gameComplete: false,
   },
 };
-let currentState = { ...initialState };
 
 //Objects
 const computer = (function () {
   let { name, token, difficulty, positions, active, board } =
-    currentState.computer;
+    initialState.computer;
   //AI Minmax Logic
   function fillBoard(turnTaker) {
     let currentPosition = turnTaker.positions;
     if (currentPosition != null) {
       currentPosition.forEach((element) => {
-        computer.board[element[0] - 1][element[1] - 1] = turnTaker.token;
+        computer.board[element[0]][element[1]] = turnTaker.token;
       });
     }
-    console.log(computer.board);
   }
-  function bestMove() {
+  function bestMove(board, computerToken) {
     let bestScore = -Infinity;
     let move;
+
+    // Check all empty spots on the board
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        if (computer.board[i][j] == "") {
-          computer.board[i][j] = computer.token;
-          let score = minimax(computer.board, 0, false);
-          computer.board[i][j] = "";
+        // If spot is empty
+        if (board[i][j] === "") {
+          // Try placing the player's symbol in the empty spot
+          board[i][j] = computerToken;
+          // Calculate the score for this move
+          let score = minimax(board, 0, false, computerToken);
+          // Undo the move
+          board[i][j] = "";
+          // If this move is better than the current best move, update bestScore and move
           if (score > bestScore) {
             bestScore = score;
             move = { i, j };
@@ -73,108 +78,107 @@ const computer = (function () {
         }
       }
     }
-    console.log(move);
-    console.log(move.i + 1 + "," + (move.j + 1));
-    return [move.i + 1, move.j + 1];
+    // Return the best move
+    return move;
   }
-  let aiScores = {
-    X: 1,
-    O: -1,
-    tie: 0,
-  };
-  function minimax(board, depth, isMaximizing) {
-    let result = aiCheckWinner();
-    if (result != null) {
-      return aiScores[result];
+
+  function minimax(board, depth, isMaximizing, computerToken) {
+    const playerToken = computerToken === "X" ? "O" : "X";
+    // Base case: check if the game is over
+    let result = checkWinner(board);
+    if (result !== null) {
+      return result === computerToken
+        ? 10 - depth
+        : result === playerToken
+        ? depth - 10
+        : 0;
     }
+
+    // Maximizing player's turn (computer)
     if (isMaximizing) {
       let bestScore = -Infinity;
+      // Check all empty spots on the board
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-          if (board[i][j] == "") {
-            board[i][j] = computer.token;
-            let score = minimax(computer.board, depth + 1, false);
-            computer.board[i][j] = "";
-            bestScore = Math.max(score, bestScore);
-          }
-        }
-      }
-      return bestScore;
-    } else {
-      let bestScore = Infinity;
-      for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (board[i][j] == "") {
-            board[i][j] = player.token;
-            let score = minimax(computer.board, depth + 1, true);
+          // If spot is empty
+          if (board[i][j] === "") {
+            // Try placing the computer's symbol in the empty spot
+            board[i][j] = computerToken;
+            // Recursively call minimax function with the new board state
+            let score = minimax(board, depth + 1, false);
+            // Undo the move
             board[i][j] = "";
-            bestScore = Math.min(score, bestScore);
+            // Update bestScore
+            bestScore = Math.max(bestScore, score);
+          }
+        }
+      }
+      return bestScore;
+    }
+    // Minimizing player's turn (human)
+    else {
+      let bestScore = Infinity;
+      // Check all empty spots on the board
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          // If spot is empty
+          if (board[i][j] === "") {
+            // Try placing the human's symbol in the empty spot
+            board[i][j] = playerToken;
+            // Recursively call minimax function with the new board state
+            let score = minimax(board, depth + 1, true);
+            // Undo the move
+            board[i][j] = "";
+            // Update bestScore
+            bestScore = Math.min(bestScore, score);
           }
         }
       }
       return bestScore;
     }
   }
-  function equalsThree(a, b, c) {
-    return a == b && b == c && a != "";
-  }
-  function aiCheckWinner() {
-    let winner = null;
-    for (let i = 0; i < 3; i++) {
+
+  function checkWinner(board) {
+    const winPatterns = [
+      // Rows
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      // Columns
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      // Diagonals
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let pattern of winPatterns) {
+      const [a, b, c] = pattern;
       if (
-        equalsThree(
-          computer.board[i][0],
-          computer.board[i][1],
-          computer.board[i][2]
-        )
+        board[(a / 3) | 0][a % 3] &&
+        board[(a / 3) | 0][a % 3] === board[(b / 3) | 0][b % 3] &&
+        board[(a / 3) | 0][a % 3] === board[(c / 3) | 0][c % 3]
       ) {
-        winner = computer.board[i][0];
+        return board[(a / 3) | 0][a % 3];
       }
     }
-    for (let i = 0; i < 3; i++) {
-      if (
-        equalsThree(
-          computer.board[0][i],
-          computer.board[1][i],
-          computer.board[2][i]
-        )
-      ) {
-        winner = computer.board[0][i];
-      }
-    }
-    for (let i = 0; i < 3; i++) {
-      if (
-        equalsThree(
-          computer.board[0][0],
-          computer.board[1][1],
-          computer.board[2][2]
-        )
-      ) {
-        winner = computer.board[i][0];
-      }
-    }
-    for (let i = 0; i < 3; i++) {
-      if (
-        equalsThree(
-          computer.board[2][0],
-          computer.board[1][1],
-          computer.board[0][2]
-        )
-      ) {
-        winner = computer.board[2][0];
-      }
-    }
-    let openSpots = 0;
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (computer.board[i][j] == "") {
-          openSpots++;
+
+    // Check for a draw
+    let draw = true;
+    for (let row of board) {
+      for (let cell of row) {
+        if (cell === "") {
+          draw = false;
+          break;
         }
       }
     }
-    if (winner == null && openSpots == 0) {
-      return "tie";
-    } else return winner;
+    if (draw) {
+      return "draw";
+    }
+
+    return null;
   }
 
   function randomIndexPos(gameboardLength) {
@@ -194,15 +198,15 @@ const computer = (function () {
 })();
 
 const player = (function () {
-  let { name, token, positions, turn } = currentState.player;
+  let { name, token, positions, turn } = initialState.player;
   return { name, token, positions, turn };
 })();
 const player2 = (function () {
-  let { name, token, positions, active, turn } = currentState.player2;
+  let { name, token, positions, active, turn } = initialState.player2;
   return { name, token, positions, active, turn };
 })();
 const gameboard = (function () {
-  let { emptyPositions, gameComplete } = currentState.gameboard;
+  let { emptyPositions, gameComplete } = initialState.gameboard;
   //cache DOM
   let opponent = document.getElementById("opponentChoice");
   const symbolSelect = document.getElementById("counterChoice");
@@ -286,8 +290,10 @@ const gameboard = (function () {
         break;
       case "moderate":
         let choice = computer.randomIndexPos(2);
-        if (choice == 1) randomMove();
-        else if (choice == 2) aiMove();
+        console.log(choice);
+        if (choice == 0) randomMove();
+        else if (choice == 1) aiMove();
+
         break;
       case "hard":
         aiMove();
@@ -305,11 +311,9 @@ const gameboard = (function () {
     }
   }
   function aiMove() {
-    position = computer.bestMove();
-    console.log(position);
-    setTimeout(() => {
-      moveArray(position, computer);
-    }, 400);
+    position = computer.bestMove(computer.board, computer.token);
+    moveArray([position.i, position.j], computer);
+    console.log(position, computer.board);
   }
   function playerVsComputerEvent(position) {
     if (checkForCounter(position) == false) {
@@ -466,35 +470,35 @@ const gameboard = (function () {
   function checkWin(countX, countY, player) {
     if (Object.values(countX).find((element) => element == 3)) {
       const objectKey = Object.keys(countX).find((key) => countX[key] == 3);
-      adjustWinLinePosition(objectKey, 1, 60, 0);
+      adjustWinLinePosition(objectKey, 0, 60, 0);
       disablePointerEvents();
       startWinLineAnimation("horizontal");
       displayOutcome(player, "horizontal");
       gameComplete = true;
     } else if (Object.values(countY).find((element) => element == 3)) {
       const objectKey = Object.keys(countY).find((key) => countY[key] == 3);
-      adjustWinLinePosition(1, objectKey, -100, 150);
+      adjustWinLinePosition(0, objectKey, -100, 150);
       disablePointerEvents();
       startWinLineAnimation("vertical");
       displayOutcome(player, "vertical");
       gameComplete = true;
     } else if (
+      findConditionalPositions([0, 0], player) == true &&
       findConditionalPositions([1, 1], player) == true &&
-      findConditionalPositions([2, 2], player) == true &&
-      findConditionalPositions([3, 3], player) == true
+      findConditionalPositions([2, 2], player) == true
     ) {
       disablePointerEvents();
-      adjustWinLinePosition(2, 1, 60, 0);
+      adjustWinLinePosition(1, 0, 60, 0);
       startWinLineAnimation("diagonal");
       displayOutcome(player, "diagonal");
       gameComplete = true;
     } else if (
-      findConditionalPositions([1, 3], player) == true &&
-      findConditionalPositions([2, 2], player) == true &&
-      findConditionalPositions([3, 1], player) == true
+      findConditionalPositions([0, 2], player) == true &&
+      findConditionalPositions([1, 1], player) == true &&
+      findConditionalPositions([2, 0], player) == true
     ) {
       disablePointerEvents();
-      adjustWinLinePosition(2, 1, 60, 0);
+      adjustWinLinePosition(1, 0, 60, 0);
       startWinLineAnimation("reverseDiagonal");
       displayOutcome(player, "diagonal");
     }
@@ -562,10 +566,7 @@ const gameboard = (function () {
     ];
     stopWinLineAnimation();
     enablePointerEvents();
-    currentState.gameboard.emptyPositions = [
-      ...initialState.gameboard.emptyPositions,
-    ];
-    emptyPositions = [...currentState.gameboard.emptyPositions];
+    emptyPositions = [...initialState.gameboard.emptyPositions];
     emptyPositions.forEach((position) => {
       let positionID = position.join(",");
       let gameCounter = document.getElementById(positionID);
